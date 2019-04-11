@@ -2,6 +2,7 @@
 <!-- TODO (7.1) Defenicion del contenido principal de la actividad -->
 <!-- TODO (7.2)  layout_behavior Define que el contenido tenga scroll con respecto a la barra-->
 <LinearLayout
+        android:id="@+id/main_ll"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         xmlns:app="http://schemas.android.com/apk/res-auto"

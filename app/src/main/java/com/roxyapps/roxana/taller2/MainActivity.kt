@@ -1,22 +1,35 @@
 package com.roxyapps.roxana.taller2
 
-
+import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
+import android.util.Log
 import com.roxyapps.roxana.taller2.R
 import android.view.Menu
 import android.view.MenuItem
+import com.google.gson.Gson
+import com.roxyapps.roxana.taller2.models.Data_coin
+import com.roxyapps.roxana.taller2.utilies.NetworkUtils
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import org.json.JSONObject
+import java.io.IOException
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     var twoPane =  false
+    private  lateinit var viewAdapter: CoinAdapter
+    private lateinit var viewManager: RecyclerView.LayoutManager
+
+    private var coinList: ArrayList<Data_coin> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,8 +76,69 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
          * TODO (Instrucciones)Luego de leer todos los comentarios añada la implementación de RecyclerViewAdapter
          * Y la obtencion de datos para el API de Monedas
          */
+        initRecyclerview()
+        //initSearchButton()
+
     }
 
+    fun initRecyclerview(){
+        viewManager = GridLayoutManager(this,2)
+        viewAdapter = CoinAdapter(coinList,{iconItem:Data_coin->iconItemCliked(iconItem)})
+
+        //seteo del adaptador
+        recyclerview.apply{
+            setHasFixedSize(true) //de antemano el tamaño del alto y ancho no cambiara
+            layoutManager = viewManager
+            adapter = viewAdapter
+
+        }
+    }
+    /*fun initSearchButton()= bt_buscar.setOnClickListener {
+        if(!et_tipo.text.toString().isEmpty()){
+            FetchIcon().execute(et_tipo.text.toString())
+        }
+    }*/
+    fun addCoinToList(coin:Data_coin){
+        coinList.add(coin)
+        viewAdapter.changeList(coinList)
+        Log.d("Number", coinList.size.toString())
+    }
+
+    fun addcoinToList(coin:List<Data_coin>){
+        coinList.addAll(coin)
+        viewAdapter.changeList(coinList)
+        Log.d("Number", coinList.size.toString())
+    }
+    private fun iconItemCliked(item:Data_coin){}
+
+    private inner class FetchIcon: AsyncTask<String, Void, String>(){
+        override fun doInBackground(vararg params: String): String {
+
+            if(params.isEmpty())return ""
+            val coin = params[0]
+            val coinUrl = NetworkUtils().buildSearUrl(coin)
+
+            return try{
+                NetworkUtils().getResponseFromHttpUrl(coinUrl)
+            }catch (e: IOException){
+                e.printStackTrace()
+                ""
+            }
+        }
+
+        override fun onPostExecute(coinInfo: String) {
+            super.onPostExecute(coinInfo)
+            if(!coinInfo.isEmpty()){
+                val coinJson = JSONObject(coinInfo)
+                if(coinJson.getString("Response")=="True"){
+                    val Coin = Gson().fromJson<Data_coin>(coinInfo, Data_coin::class.java::class.java)
+                    addcoinToList(Coin)
+                }else{
+                    Snackbar.make(main_ll, "No existe pokemon de este tipo en la base",Snackbar.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     // TODO (16) Para poder tener un comportamiento Predecible
     // TODO (16.1) Cuando se presione el boton back y el menu este abierto cerralo
@@ -100,16 +174,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle navigation view item clicks here.
         when (item.itemId) {
             // TODO (14.3) Los Id solo los que estan escritos en el archivo de MENU
-            R.id.nav_camera -> {
+            R.id.nav_ES -> {
 
             }
-            R.id.nav_gallery -> {
+            R.id.nav_Mexico -> {
 
             }
-            R.id.nav_slideshow -> {
+            R.id.nav_EEUU -> {
 
             }
-            R.id.nav_manage -> {
+            R.id.nav_Colombia -> {
 
             }
             R.id.nav_share -> {
