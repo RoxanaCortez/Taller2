@@ -131,8 +131,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if(!coinInfo.isEmpty()){
                 val coinJson = JSONObject(coinInfo)
                 if(coinJson.getString("Response")=="True"){
-                    val Coin = Gson().fromJson<Data_coin>(coinInfo, Data_coin::class.java::class.java)
-                    addcoinToList(Coin)
+                    val moneda = Gson().fromJson<Data_coin>(coinInfo, Data_coin::class.java::class.java)
+                    addcoinToList(moneda)
                 }else{
                     Snackbar.make(main_ll, "No existe pokemon de este tipo en la base",Snackbar.LENGTH_LONG).show()
                 }
