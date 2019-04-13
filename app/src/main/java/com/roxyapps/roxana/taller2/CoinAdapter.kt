@@ -4,11 +4,10 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.GridLayout
-import com.roxyapps.roxana.taller2.models.Data_coin
+import com.roxyapps.roxana.taller2.models.DataCoin
 import kotlinx.android.synthetic.main.lista_moneda.view.*
 
-class CoinAdapter (var items:List<Data_coin>, val clickListener: (Data_coin)-> Unit):RecyclerView.Adapter<CoinAdapter.ViewHolder>(){
+class CoinAdapter (var items:List<DataCoin>, val clickListener: (DataCoin)-> Unit):RecyclerView.Adapter<CoinAdapter.ViewHolder>(){
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.lista_moneda, parent, false)
         return ViewHolder(view)
@@ -22,7 +21,7 @@ class CoinAdapter (var items:List<Data_coin>, val clickListener: (Data_coin)-> U
     // pasarlas a la clase ViewHolder para que esta pinte todos los valores.
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int)=viewHolder.bind(items[position], clickListener)
 
-    fun changeList(items: List<Data_coin>){
+    fun changeList(items: List<DataCoin>){
         this.items = items
 
         notifyDataSetChanged()
@@ -32,7 +31,7 @@ class CoinAdapter (var items:List<Data_coin>, val clickListener: (Data_coin)-> U
     // Obtiene los valores de la de elementos igualando a la data asignada
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
 
-        fun bind(coin:Data_coin, clickLister:(Data_coin)->Unit) = with(itemView){
+        fun bind(coin:DataCoin, clickLister:(DataCoin)->Unit) = with(itemView){
             tv_nombre.text = coin.name
             tv_valor.text = coin.value.toString()
             this.setOnClickListener {clickLister(coin)}

@@ -1,35 +1,41 @@
 package com.roxyapps.roxana.taller2
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.res.Configuration
 import android.os.AsyncTask
 import android.os.Bundle
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
+import android.support.v4.app.Fragment
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
-import com.roxyapps.roxana.taller2.R
 import android.view.Menu
 import android.view.MenuItem
 import com.google.gson.Gson
-import com.roxyapps.roxana.taller2.models.Data_coin
+import com.roxyapps.roxana.taller2.models.DataCoin
 import com.roxyapps.roxana.taller2.utilies.NetworkUtils
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_main_drawer.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.lista_moneda.*
 import org.json.JSONObject
 import java.io.IOException
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
+
     var twoPane =  false
     private  lateinit var viewAdapter: CoinAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
+    private lateinit var  mContentFragment: ContentFragment
 
-    private var coinList: ArrayList<Data_coin> = ArrayList()
+    private var coinList: ArrayList<DataCoin> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,14 +82,23 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
          * TODO (Instrucciones)Luego de leer todos los comentarios añada la implementación de RecyclerViewAdapter
          * Y la obtencion de datos para el API de Monedas
          */
+        initFragment()
         initRecyclerview()
         //initSearchButton()
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
 
+        }
+    }
+
+    fun initFragment(){
+        //Iniciar el fragmento que mostrará el detalle de la moneda
+        mContentFragment = ContentFragment.newInstance(DataCoin())
+        changeFragment(R.id.main_content_fragment, mContentFragment)
     }
 
     fun initRecyclerview(){
         viewManager = GridLayoutManager(this,2)
-        viewAdapter = CoinAdapter(coinList,{iconItem:Data_coin->iconItemCliked(iconItem)})
+        viewAdapter = CoinAdapter(coinList,{iconItem:DataCoin->iconItemCliked(iconItem)})
 
         //seteo del adaptador
         recyclerview.apply{
@@ -98,19 +113,28 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             FetchIcon().execute(et_tipo.text.toString())
         }
     }*/
-    fun addCoinToList(coin:Data_coin){
-        coinList.add(coin)
+    fun addCoinList(coin:ArrayList<DataCoin>){
         viewAdapter.changeList(coinList)
         Log.d("Number", coinList.size.toString())
     }
 
-    fun addcoinToList(coin:List<Data_coin>){
-        coinList.addAll(coin)
-        viewAdapter.changeList(coinList)
-        Log.d("Number", coinList.size.toString())
-    }
-    private fun iconItemCliked(item:Data_coin){}
+    private fun iconItemCliked(item:DataCoin){
+        if (resources.configuration.orientation==Configuration.ORIENTATION_PORTRAIT) {
+            //Levantar la nueva actividad
 
+            moneda.setOnClickListener{
+                val mIntent = Intent(this@MainActivity, SecondActivity::class.java)
+                mIntent.putExtra(AppConstants.TeXT_KEY, item)
+                startActivity(mIntent)
+            }
+            //Se manda a una activity dentro de una aplicacion
+
+        }else{
+            mContentFragment = ContentFragment.newInstance(item)
+            changeFragment(R.id.main_content_fragment, mContentFragment)
+        }
+    }
+    private fun changeFragment(id: Int, frag: Fragment){ supportFragmentManager.beginTransaction().replace(id, frag).commit() }
     private inner class FetchIcon: AsyncTask<String, Void, String>(){
         override fun doInBackground(vararg params: String): String {
 
@@ -131,8 +155,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             if(!coinInfo.isEmpty()){
                 val coinJson = JSONObject(coinInfo)
                 if(coinJson.getString("Response")=="True"){
-                    val moneda = Gson().fromJson<Data_coin>(coinInfo, Data_coin::class.java::class.java)
-                    addcoinToList(moneda)
+                    /**
+                     * TODO: Recibirlo como un arreglo, ir iterando sobre cada objeto de ese arreglo y guardarlo
+                     * en la lista
+                     * */
+                    val moneda = Gson().fromJson<DataCoin>(coinInfo, DataCoin::class.java::class.java)
+                    coinList.add(moneda)
+                    addCoinList(coinList)
                 }else{
                     Snackbar.make(main_ll, "No existe pokemon de este tipo en la base",Snackbar.LENGTH_LONG).show()
                 }
@@ -152,9 +181,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     // TODO (17) LLena el menu que esta en la barra. El de tres puntos a la derecha
+    @SuppressLint("ResourceType")
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
+        menuInflater.inflate(R.layout.main, menu)
         return true
     }
 
@@ -175,16 +205,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         when (item.itemId) {
             // TODO (14.3) Los Id solo los que estan escritos en el archivo de MENU
             R.id.nav_ES -> {
-
+                nav_ES.setOnClickListener{
+                    FetchIcon()
+                }
             }
             R.id.nav_Mexico -> {
-
+                nav_Mexico.setOnClickListener{
+                    FetchIcon()
+                }
             }
             R.id.nav_EEUU -> {
-
+                nav_EEUU.setOnClickListener{
+                    FetchIcon()
+                }
             }
             R.id.nav_Colombia -> {
-
+                nav_Colombia.setOnClickListener{
+                    FetchIcon()
+                }
             }
             R.id.nav_share -> {
 

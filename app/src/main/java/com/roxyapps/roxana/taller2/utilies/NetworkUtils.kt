@@ -9,7 +9,7 @@ import java.net.URL
 import java.util.*
 
 class NetworkUtils {
-    val COIN_API_BASE_URL=""
+    val COIN_API_BASE_URL="https://internal-coins.nerokuapp.com/api/coin"
     val COIN_INFO="country"
 
     fun buildSearUrl(country: String): URL {
